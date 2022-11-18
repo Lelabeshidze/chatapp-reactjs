@@ -1,17 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Logo from "../assets/logo.svg";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function Register() {
-  const handleSubmit = (e) => {
-    exports.preventDefault();
-    alert("form");
+  const [values, setValues] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleSubmit = (e) => { 
+    e.preventDefault();
+    handleValidation();
   };
-  const handleChange = (e) => {};
+
+  const handleValidation = () => {
+    const { username, email, password, confirmPassword } = values;
+    if (password !== confirmPassword) {
+      toast.error("Password and confirm password should be same!", {
+        position: "bottom-right",
+        autoClose: 8000,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    }
+  };
+
+  const handleChange = (e) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+  };
   return (
     <>
       <FormContainer>
-        <form onSubmit={() => handleSubmit()}>
+        <form onSubmit={(e) => handleSubmit(e)}>
           <div className="brand">
             <img src={Logo} alt="Logo" />
             <h1>snappy</h1>
@@ -46,6 +71,7 @@ function Register() {
           </span>
         </form>
       </FormContainer>
+      <ToastContainer />
     </>
   );
 }
