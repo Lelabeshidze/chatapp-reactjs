@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/logo.svg";
@@ -20,6 +20,12 @@ function Login() {
     draggable: true,
     theme: "dark",
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("chat-app-user")) {
+      navigate("/");
+    }
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (handleValidation()) {
@@ -33,17 +39,17 @@ function Login() {
       }
       if (data.status === true) {
         localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+        navigate("/");
       }
-      navigate("/");
     }
   };
 
   const handleValidation = () => {
     const { username, password } = values;
-    if (!username) {
+    if (username === "") {
       toast.error("Username is required", toastOptions);
       return false;
-    } else if (!password) {
+    } else if (password === "") {
       toast.error("Password is required", toastOptions);
       return false;
     }
