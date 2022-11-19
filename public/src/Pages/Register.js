@@ -39,7 +39,7 @@ function Register() {
       }
       navigate("/");
     }
-  };
+  };  
 
   const handleValidation = () => {
     const { username, email, password, confirmPassword } = values;
