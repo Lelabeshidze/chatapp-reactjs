@@ -2,11 +2,15 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import ChatContainer from "../Components/ChatContainer";
 import Contacts from "../Components/Contacts";
+import Welcome from "../Components/Welcome";
 import { allUsersRoute } from "../Utils/APIRoutes";
 function Chat() {
   const [contacts, setContacts] = useState([]);
   const [currentUser, setCurrentUser] = useState(undefined);
+  const [currentChat, setCurrentChat] = useState(undefined);
+  const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -14,6 +18,7 @@ function Chat() {
         navigate("/login");
       } else {
         setCurrentUser(await JSON.parse(localStorage.getItem("chat-app-user")));
+        setIsLoaded(true);
       }
     };
     getCurrentUser();
@@ -31,11 +36,25 @@ function Chat() {
     };
     getContacts();
   }, [currentUser]);
+
+  const handleChatChange = (chat) => {
+    setCurrentChat(chat);
+  };
+  console.log(contacts);
   return (
     <>
       <Container>
         <div className="container">
-          <Contacts contacts={contacts} currentUser={currentUser} />
+          <Contacts
+            contacts={contacts}
+            currentUser={currentUser}
+            changeChat={handleChatChange}
+          />
+          {isLoaded && currentChat === undefined ? (
+            <Welcome currentUser={currentUser} />
+          ) : (
+            <ChatContainer currentUser={currentUser} />
+          )}
         </div>
       </Container>
     </>
