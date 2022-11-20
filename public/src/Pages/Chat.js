@@ -40,23 +40,24 @@ function Chat() {
   const handleChatChange = (chat) => {
     setCurrentChat(chat);
   };
-  console.log(contacts);
+
   return (
     <>
-      <Container>
-        <div className="container">
-          <Contacts
-            contacts={contacts}
-            currentUser={currentUser}
-            changeChat={handleChatChange}
-          />
-          {isLoaded && currentChat === undefined ? (
-            <Welcome currentUser={currentUser} />
-          ) : (
-            <ChatContainer currentUser={currentUser} />
-          )}
-        </div>
-      </Container>
+        <Container>
+          <div className="container">
+            <Contacts
+              contacts={contacts}
+              currentUser={currentUser}
+              changeChat={handleChatChange}
+            />
+            {isLoaded && currentChat === undefined ? (
+              <Welcome currentUser={currentUser} />
+            ) : (
+              <ChatContainer currentChat={currentChat} />
+            )}
+          </div>
+        </Container>
+      
     </>
   );
 }
