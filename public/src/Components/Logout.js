@@ -11,7 +11,7 @@ function Logout() {
   };
   return (
     <Button>
-      <BiPowerOff />
+      <BiPowerOff  onClick={handleClick}/>
     </Button>
   );
 }
