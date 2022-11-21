@@ -4,22 +4,18 @@ import { IoMdSend } from "react-icons/io";
 import styled from "styled-components";
 import Picker from "emoji-picker-react";
 function ChatInput() {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const handleEmojiPickerHideShow = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
   return (
     <Container>
-      {/* <div className="button-container">
-        <div className="emoji">
-          <BsEmojiSmileFill />
-        </div>
-      </div>
-      <form className="input-container">
-        <input type="text" placeholder="type you message here" />
-        <button className="send">
-          <IoMdSend />
-        </button>
-      </form> */}
       <div className="button-container">
         <div className="emoji">
-          <BsEmojiSmileFill />
+          <BsEmojiSmileFill onClick={handleEmojiPickerHideShow} />
+          {showEmojiPicker && <Picker />}
         </div>
       </div>
       <form className="input-container">
