@@ -1,12 +1,15 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ChatContainer from "../Components/ChatContainer";
 import Contacts from "../Components/Contacts";
 import Welcome from "../Components/Welcome";
-import { allUsersRoute } from "../Utils/APIRoutes";
+import { allUsersRoute, host } from "../Utils/APIRoutes";
+import { io } from "socket.io-client";
+
 function Chat() {
+  const socket = useRef();
   const [contacts, setContacts] = useState([]);
   const [currentUser, setCurrentUser] = useState(undefined);
   const [currentChat, setCurrentChat] = useState(undefined);
@@ -23,6 +26,14 @@ function Chat() {
     };
     getCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      socket.current = io(host);
+      socket.current.emit("add-user", currentUser._id);
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     const getContacts = async () => {
       if (currentUser) {
@@ -43,21 +54,24 @@ function Chat() {
 
   return (
     <>
-        <Container>
-          <div className="container">
-            <Contacts
-              contacts={contacts}
+      <Container>
+        <div className="container">
+          <Contacts
+            contacts={contacts}
+            currentUser={currentUser}
+            changeChat={handleChatChange}
+          />
+          {isLoaded && currentChat === undefined ? (
+            <Welcome currentUser={currentUser} />
+          ) : (
+            <ChatContainer
+              currentChat={currentChat}
               currentUser={currentUser}
-              changeChat={handleChatChange}
+              socket={socket}
             />
-            {isLoaded && currentChat === undefined ? (
-              <Welcome currentUser={currentUser} />
-            ) : (
-              <ChatContainer currentChat={currentChat} currentUser={currentUser}/>
-            )}
-          </div>
-        </Container>
-      
+          )}
+        </div>
+      </Container>
     </>
   );
 }

@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import ChatInput from "./ChatInput";
 import Logout from "./Logout";
-import Messages from "./Messages";
+import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { getAllMsgRoute, sendMsgRoute } from "../Utils/APIRoutes";
-function ChatContainer({ currentChat, currentUser }) {
+function ChatContainer({ currentChat, currentUser, socket }) {
   const [messages, setMessages] = useState([]);
+  const [arrivedMessage, setArrivedMessage] = useState(null);
+  const scrollRef = useRef();
 
   const handleSendMsg = async (msg) => {
     await axios.post(sendMsgRoute, {
@@ -14,17 +16,44 @@ function ChatContainer({ currentChat, currentUser }) {
       to: currentChat._id,
       message: msg,
     });
+    socket.current.emit("send-msg", {
+      to: currentChat._id,
+      from: currentUser._id,
+      message: msg,
+    });
+    const msgs = [...messages];
+    msgs.push({ fromSelf: true, mesaage: msg });
+    setMessages(msgs);
   };
   useEffect(() => {
-    const getMessages = async () => {
-      const response = await axios.post(getAllMsgRoute, {
-        from: currentUser._id,
-        to: currentChat._id,
+    if (socket.current) {
+      socket.current.on("msg-recieve", (msg) => {
+        setArrivedMessage({ fromSelf: false, message: msg });
       });
-      setMessages(response.data);
+    }
+  }, []);
+
+  useEffect(() => {
+    arrivedMessage && setMessages((prev) => [...prev, arrivedMessage]);
+  }, [arrivedMessage]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behaviour: "smooth" });
+  }, [messages]);
+
+  useEffect(() => {
+    const getMessages = async () => {
+      if (currentChat) {
+        const response = await axios.post(getAllMsgRoute, {
+          from: currentUser._id,
+          to: currentChat._id,
+        });
+        setMessages(response.data);
+      }
     };
     getMessages();
-  }, [currentChat, messages]);
+  }, [currentChat]);
+
   return (
     <>
       {currentChat && (
@@ -46,14 +75,14 @@ function ChatContainer({ currentChat, currentUser }) {
           <div className="chat-messages">
             {messages.map((message, index) => {
               return (
-                <div key={index}>
+                <div key={uuidv4()} ref={scrollRef}>
                   <div
                     className={`message ${
-                      message.fromSelf ? "sended" : "received"
+                      message.fromSelf ? "sended" : "recieved"
                     }`}
                   >
                     <div className="content">
-                      <p>{message.message}</p>
+                      <p>{message?.message}</p>
                     </div>
                   </div>
                 </div>
@@ -131,7 +160,7 @@ const Container = styled.div`
         background-color: #695ba8;
       }
     }
-    .received {
+    .recieved {
       justify-content: flex-start;
       .content {
         background-color: #4f04ff21;
