@@ -24,7 +24,7 @@ function ChatContainer({ currentChat, currentUser }) {
       setMessages(response.data);
     };
     getMessages();
-  }, [currentChat]);
+  }, [currentChat, messages]);
   return (
     <>
       {currentChat && (
